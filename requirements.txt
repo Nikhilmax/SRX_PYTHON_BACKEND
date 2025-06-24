@@ -1,0 +1,11 @@
+FastAPI
+uvicorn
+SQLAlchemy
+pydantic
+passlib[bcrypt]
+python-jose
+email-validator
+databases
+asyncpg
+pytest
+httpx

@@ -28,6 +28,7 @@ class User(Base):
     __tablename__ = 'users'
 
     user_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    full_name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     roles_permissions = Column(Enum(UserRole), nullable=False)

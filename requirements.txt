@@ -9,3 +9,6 @@ databases
 asyncpg
 pytest
 httpx
+PyJWT
+pytest-asyncio
+python-dotenv

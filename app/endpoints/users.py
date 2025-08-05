@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List  
-from app.schemas import UserRead, AddressRead, UserCreate, UserUpdate,LoginUser, AddressCreate, AddressBase
+from app.schemas import UserRead, AddressRead, UserCreate, UserUpdate,LoginUser, AddressCreate, AddressBase, AddressUpdate
 from fastapi import APIRouter, Depends, HTTPException
-from app.core.security import create_access_token, decode_access_token
+from app.core.security import create_access_token, decode_access_token, token_expired
 
 router = APIRouter()
 from app.db.session import get_db
@@ -75,6 +75,9 @@ def get_user_addresses(access_token: str, db: Session = Depends(get_db)):
     """
     Get all addresses for a specific user.
     """
+    expired = token_expired(access_token)
+    if expired:
+        raise HTTPException(status_code=401, detail="Access token has expired")
     user_id = decode_access_token(access_token).get("user_id")
     addresses = crud_users.get_user_addresses(db, user_id=user_id)
     if not addresses:
@@ -86,6 +89,9 @@ def create_address(address: AddressBase, access_token: str, db: Session = Depend
     """
     Create a new address for the user.
     """
+    expired = token_expired(access_token)
+    if expired:
+        raise HTTPException(status_code=401, detail="Access token has expired")
     user_id = decode_access_token(access_token).get("user_id")
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid access token")
@@ -98,3 +104,56 @@ def create_address(address: AddressBase, access_token: str, db: Session = Depend
         user_id=user_id
     )
     return crud_users.create_address(db=db, address=address)
+
+@router.patch("/addresses/{address_id}", response_model=AddressRead)
+def update_address(address_id: str, address_update: AddressUpdate, access_token: str, db: Session = Depends(get_db)):
+    """
+    Update an existing address.
+    """
+    expired = token_expired(access_token)
+    if expired:
+        raise HTTPException(status_code=401, detail="Access token has expired") 
+    user_id = decode_access_token(access_token).get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid access token")
+
+    updated_address = crud_users.update_address(db=db, address_id=address_id,user_id=user_id, address_update=address_update)
+    if not updated_address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    return updated_address
+
+@router.delete("/addresses/{address_id}", response_model=AddressRead)
+def delete_address(address_id: str, access_token: str, db: Session = Depends(get_db)):
+    """
+    Delete an address by ID.
+    """
+    expired = token_expired(access_token)
+    if expired:
+        raise HTTPException(status_code=401, detail="Access token has expired")
+    user_id = decode_access_token(access_token).get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid access token")
+
+    deleted_address = crud_users.delete_address(db=db, address_id=address_id, user_id=user_id)
+    if isinstance(deleted_address, HTTPException):
+        raise deleted_address
+    if not deleted_address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    return deleted_address
+
+@router.get("/addresses/{address_id}", response_model=AddressRead)
+def get_address_by_id(address_id: str, access_token: str, db: Session = Depends(get_db)):
+    """
+    Get an address by its ID.
+    """
+    user_id = decode_access_token(access_token).get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid access token")
+
+    address = crud_users.get_address_by_id(db=db, address_id=address_id)
+    if not address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    
+    return address

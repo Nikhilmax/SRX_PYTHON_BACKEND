@@ -55,8 +55,8 @@ class AddressCreate(AddressBase):
     user_id: str
 
 class AddressRead(AddressBase):
-    address_id: str
     user_id: str
+    address_id: str
 
 class AddressUpdate(BaseModel):
     address: Optional[str] = None
@@ -72,13 +72,16 @@ class CategoryBase(BaseModel):
     category: str
 
 class CategoryRead(CategoryBase):
-    pass
+    category_id: str
+
+    class Config:
+        orm_mode = True
 
 class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
     price: str
-    category: str
+    category_id: str
     product_metadata: Optional[Any] = None
     count: str
 
@@ -87,6 +90,16 @@ class ProductCreate(ProductBase):
 
 class ProductRead(ProductBase):
     product_id: str
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[str] = None
+    product_metadata: Optional[Any] = None
+    count: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 class OrderBase(BaseModel):
     user_id: str
@@ -103,3 +116,10 @@ class OrderRead(OrderBase):
     order_id: str
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+class OrderUpdate(BaseModel):
+    payment_status: Optional[PaymentStatus] = None
+    status: Optional[OrderStatus] = None
+
+    class Config:
+        orm_mode = True

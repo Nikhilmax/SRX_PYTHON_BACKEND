@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import UserRead, AddressRead
-from app.endpoints import users
+from app.endpoints import users,products, orders
 from app.db.session import get_db
 app = FastAPI()
 
@@ -37,3 +37,7 @@ async def info():
     }
 
 app.include_router(users.router)
+
+app.include_router(products.router)
+
+app.include_router(orders.router)

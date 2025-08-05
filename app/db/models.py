@@ -46,7 +46,8 @@ class Address(Base):
 
 class Category(Base):
     __tablename__ = 'categories'
-    category = Column(String(100), primary_key=True, nullable=False)
+    category_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    category = Column(String(100), nullable=False)
 
 class Product(Base):
     __tablename__ = 'products'
@@ -55,7 +56,7 @@ class Product(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     price = Column(String(20), nullable=False)
-    category = Column(String(100), ForeignKey('categories.category'), nullable=False)
+    category_id = Column(String(100), ForeignKey('categories.category_id'), nullable=False)
     product_metadata = Column(JSON, nullable=True)  # For additional product information
     count = Column(String(20), nullable=False)
 

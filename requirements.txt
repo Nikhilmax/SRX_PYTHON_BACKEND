@@ -12,3 +12,5 @@ httpx
 PyJWT
 pytest-asyncio
 python-dotenv
+regex
+fastapi-users

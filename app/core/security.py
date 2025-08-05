@@ -38,3 +38,14 @@ def decode_access_token(token: str) -> dict:
         raise ValueError("Invalid token")
     except Exception as e:
         raise ValueError(f"An error occurred while decoding the token: {str(e)}")
+    
+def token_expired(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return False  # Token is valid
+    except jwt.ExpiredSignatureError:
+        return True  # Token has expired
+    except jwt.InvalidTokenError:
+        return True  # Invalid token
+    except Exception as e:
+        raise ValueError(f"An error occurred while checking token expiration: {str(e)}")
